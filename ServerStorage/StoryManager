@@ -1,0 +1,194 @@
+-- This is a ModuleScript
+-- Define a module for managing a game story
+local StoryManager = {}
+
+local ToggleDialogueEvent = game:GetService("ReplicatedStorage").ToggleEvents.ToggleDialogueEvent
+
+local DialogueEvent = game:GetService("ReplicatedStorage").GuiEvents.DialogueEvent
+local TaskEvent = game:GetService("ReplicatedStorage").GuiEvents.TaskEvent
+local TimerEvent = game:GetService("ReplicatedStorage").GuiEvents.TimerEvent
+
+-- Reference to the NPC model
+local npcModel = game.Workspace.Wulfric
+local npcImage = "rbxassetid://9189127821"
+local npcName = npcModel.Name
+
+local npcHumanoid = npcModel:WaitForChild("Humanoid")
+local npcAnimator = npcHumanoid:WaitForChild("Animator")
+local npcAnimation = npcAnimator:WaitForChild("Animation")
+
+--To hide TaskGui
+local ToggleTaskEvent=game:GetService("ReplicatedStorage").ToggleEvents.ToggleTaskEvent
+
+--Import TimeUpEvent
+local TimeUpEvent=game:GetService("ReplicatedStorage").ToggleEvents.TimeUpEvent
+
+--import Incendio Stone and Click Detector
+local stone = game.Workspace.IncendioStone
+local clickDetector = stone:WaitForChild("ClickDetector")
+
+--import fire
+local fireSpawner1 = game.Workspace.FireSpawner1
+local fireSpawner2 = game.Workspace.FireSpawner2
+
+-- Send signal as server
+local function task1()
+	
+	--Customize the ID with animation
+	npcAnimation.AnimationId = "rbxassetid://16513630642"
+	
+	--Loading animation
+	local animationTrack = npcAnimator:LoadAnimation(npcAnimation)
+	
+	--Running animation
+	animationTrack:Play()
+
+
+	DialogueEvent:FireAllClients(npcImage, npcName, "Welcome to Wizardry School!")
+	wait(5)
+
+	--Stops the animation after the NPC says Welcome
+	animationTrack:Stop()
+
+	DialogueEvent:FireAllClients(npcImage, npcName, "I am Professor Wulfric.")
+	wait(3)
+
+	DialogueEvent:FireAllClients(npcImage, npcName, "Since it is your first day of school..")
+	wait(5)
+
+	DialogueEvent:FireAllClients(npcImage, npcName, ".. I will lead you to join the first class as an introduction.")
+	wait(6)
+
+	DialogueEvent:FireAllClients(npcImage, npcName, "Feel free to explore the castle while I'm preparing the class.")
+	wait(7)
+
+	-- Hide dialogue GUI
+	ToggleDialogueEvent:FireAllClients(false)
+
+	-- Show task GUI
+	TaskEvent:FireAllClients("Explore School")
+
+	-- Show timer GUI
+	TimerEvent:FireAllClients(20)
+
+end
+
+local function task2()
+	
+	
+	--Hide TaskGui
+	ToggleTaskEvent:FireAllClients(false)
+	
+	DialogueEvent:FireAllClients(npcImage, npcName, "Ouch! Where is the Incendio Stone?")
+	wait(5)
+	
+	DialogueEvent:FireAllClients(npcImage, npcName, "Can anyone help me to find it? It is a Glowing Blue Ball labeled with Incendio Stone")
+	wait(6)
+	
+	--Hide DialogueGui
+	ToggleDialogueEvent:FireAllClients(false)
+	
+	TaskEvent:FireAllClients("Find Incendio Stone")
+	
+	--Display TimeGui 30seconds
+	TimerEvent:FireAllClients(30)
+	
+	clickDetector.MouseClick:Connect(function()
+		
+		--Eliminate Incendio Stone
+		stone:Destroy()
+		
+		--send the signal RemoteEvent to stop Timer
+		TimeUpEvent:FireAllClients()
+		
+		--Hide TaskGui
+		ToggleTaskEvent:FireAllClients(false)
+		
+		DialogueEvent:FireAllClients(npcImage, npcName, "Wow Thanks!")
+		wait(3)
+		
+		DialogueEvent:FireAllClients(npcImage, npcName, "Now, come back to class")
+		wait(6)
+	end)
+	
+end
+
+local function task3()
+	
+	--remove the click detector so that incendio stone cannot be clicked again
+	clickDetector:Destroy()
+	
+	--Dialogue NPC
+	DialogueEvent:FireAllClients(npcImage, npcName, "Let’s continue, I have mixed the ingredients and the mantra is..")
+	wait(6)
+	
+	--Enable Fire Particle
+	local fire1 = fireSpawner1:WaitForChild("ParticleEmitter")
+	local fire2 = fireSpawner2:WaitForChild("ParticleEmitter")
+	
+	local light1 = fireSpawner1:WaitForChild("PointLight")
+	local light2 = fireSpawner2:WaitForChild("PointLight")
+	
+	fire1.Enabled=true
+	light1.Enabled=true
+	
+	wait(3)
+	
+	fire2.Enabled=true
+	light2.Enabled=true
+	
+	--NPC Dialogue to tell the players to save themselves
+	
+	DialogueEvent:FireAllClients(npcImage, npcName, "Oh no! I put a wrong ingredient!")
+	wait(5)
+
+	DialogueEvent:FireAllClients(npcImage, npcName, "It will burn the whole castle! Go save your life!")
+	wait(5)
+
+	DialogueEvent:FireAllClients(npcImage, npcName, "Find a way behind the Barrack that connect to a big tunnel ! ")
+	wait(6)
+	
+	--Hide dialogue Gui and bring up the Task Gui
+	ToggleDialogueEvent:FireAllClients(false)
+	TaskEvent:FireAllClients("Find a way exit behind the Barracks")
+	
+	--When player died
+	
+	local players = game.Players:GetPlayers()
+	
+	for playerKey, whichPlayer in pairs(players) do
+		local human = whichPlayer.Character:FindFirstChild("Humanoid")
+		
+		human.Touched:Connect(function(fireSpawner)
+			local fire = fireSpawner:FindFirstChild("ParticleEmitter")
+			
+			if fire then
+				human.Health = 0
+			end
+		end)
+	end
+	
+end
+
+	
+	
+	
+function StoryManager.startStory()
+   wait(10)
+   task1()
+   wait(20)
+
+   task2()
+   wait(30)
+   
+   task3()
+	
+end
+
+
+
+
+
+
+-- Return the StoryManager module for external use
+return StoryManager

@@ -1,0 +1,25 @@
+-- Variables
+
+local player = game.Players.LocalPlayer
+
+local frame = player.PlayerGui:WaitForChild("DialogueGui").Frame
+
+local dialogueEvent = game:GetService("ReplicatedStorage").GuiEvents.DialogueEvent
+
+-- Function
+local function animateText(dialogue)
+	for i = 1, #dialogue, 1 do
+		frame:WaitForChild("DialogueLabel").Text = string.sub(dialogue, 1, i)
+		wait(0.04)
+	end
+end
+
+-- Event
+
+dialogueEvent.OnClientEvent:Connect(function(playerImage, playerName, dialogue)
+	frame.Visible = true -- Munculkan Frame GUI
+	frame:WaitForChild("ImageLabel").Image = playerImage
+	frame:WaitForChild("NameLabel").Text = playerName
+
+	animateText(dialogue)
+end)

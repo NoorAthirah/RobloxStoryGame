@@ -1,0 +1,12 @@
+local player = game.Players.LocalPlayer
+
+local frame = player.PlayerGui:WaitForChild("TaskGui").Frame
+
+local taskEvent = game:GetService("ReplicatedStorage").GuiEvents.TaskEvent
+
+
+
+taskEvent.OnClientEvent:Connect(function(task)
+	frame.Visible = true
+	frame:WaitForChild("TaskLabel").Text = task
+end)

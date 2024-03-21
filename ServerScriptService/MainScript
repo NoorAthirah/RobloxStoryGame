@@ -1,0 +1,8 @@
+-- Variables
+local ServerStorage = game:GetService("ServerStorage")
+local StoryManager = require(ServerStorage:WaitForChild("StoryManager"))
+
+
+
+-- Function
+StoryManager.startStory()

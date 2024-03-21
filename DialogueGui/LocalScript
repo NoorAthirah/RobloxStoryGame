@@ -1,0 +1,20 @@
+--Import RemoteEvent
+local ToggleDialogueEvent = game:GetService("ReplicatedStorage").ToggleEvents.ToggleDialogueEvent
+
+
+
+--Import Frame DialogueGui
+local frame = script.Parent.Frame
+
+
+--Receiving Signal from Remote Event 
+ToggleDialogueEvent.OnClientEvent:Connect(function(toggle)
+	--show Frame
+	if toggle == true then 
+		frame.Visible = true
+		--Hide Frame
+	elseif toggle == false then
+		frame.Visible = false
+			
+	end
+end)
